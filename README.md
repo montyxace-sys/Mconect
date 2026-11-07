@@ -54,6 +54,18 @@ Para generar un único ejecutable autocontenido (no necesita .NET instalado):
 dotnet publish App/Mnet.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
 ```
 
+## Instalar
+
+`MnetSetup.exe` instala Mnet para todos los usuarios del equipo en `Archivos de programa\Mnet`, con accesos directos opcionales en el escritorio y el menú Inicio. Añade la entrada **Mnet** a Aplicaciones instaladas y su desinstalador (`Mnet.Uninstall.exe`).
+
+El instalador pide permisos de administrador porque escribe en Archivos de programa y en el registro. El ejecutable portable `Mnet.exe` sigue disponible si prefieres no instalar nada.
+
+Para generar el instalador (requiere el SDK de .NET y .NET Framework 4.8):
+
+```
+.\build-setup.ps1
+```
+
 ## Pruebas
 
 ```
