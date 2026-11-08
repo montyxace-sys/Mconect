@@ -4,6 +4,18 @@ Escritorio remoto directo entre dos equipos Windows, con una interfaz sencilla i
 
 ![Ventana principal de Mconect](docs/main.png)
 
+## Descargas
+
+Última versión: **0.1.0**. Todas las versiones están en [Releases](https://github.com/montyxace-sys/Mconect/releases).
+
+| Formato | Descarga directa |
+| --- | --- |
+| Portable | [Mconect.exe](https://github.com/montyxace-sys/Mconect/releases/download/v0.1.0/Mconect.exe) |
+| MSI | [Mconect-0.1.0-x64.msi](https://github.com/montyxace-sys/Mconect/releases/download/v0.1.0/Mconect-0.1.0-x64.msi) |
+| Instalador propio | [MconectSetup.exe](https://github.com/montyxace-sys/Mconect/releases/download/v0.1.0/MconectSetup.exe) |
+
+Comprueba la integridad de lo descargado con [SHA256SUMS.txt](https://github.com/montyxace-sys/Mconect/releases/download/v0.1.0/SHA256SUMS.txt).
+
 ## Funciones
 
 - Control real del ratón y del teclado del equipo remoto.
