@@ -4,10 +4,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
-using Mnet.App.Services;
-using Mnet.Core.Remoting;
+using Mconect.App.Services;
+using Mconect.Core.Remoting;
 
-namespace Mnet.App;
+namespace Mconect.App;
 
 public partial class MainWindow : Window
 {
@@ -26,7 +26,7 @@ public partial class MainWindow : Window
         LocalPortText.Text = $"Puerto {DefaultPort}";
         SessionPasswordText.Text = _password;
         HeaderAddress.Text = $"{MachineInfo.LocalAddress}:{DefaultPort}";
-        VersionText.Text = $"Mnet {Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
+        VersionText.Text = $"Mconect {Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
 
         IdBox.KeyDown += (_, e) => SubmitOnEnter(e);
         SessionPasswordBox.KeyDown += (_, e) => SubmitOnEnter(e);

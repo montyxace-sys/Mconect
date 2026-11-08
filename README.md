@@ -1,8 +1,8 @@
-# Mnet
+# Mconect
 
 Escritorio remoto directo entre dos equipos Windows, con una interfaz sencilla inspirada en TeamViewer. Sin cuentas, sin servidores intermediarios y sin datos en la nube: los dos equipos se conectan entre sí por la red local o por una IP pública.
 
-![Ventana principal de Mnet](docs/main.png)
+![Ventana principal de Mconect](docs/main.png)
 
 ## Funciones
 
@@ -16,13 +16,13 @@ Escritorio remoto directo entre dos equipos Windows, con una interfaz sencilla i
 
 ## Cómo se usa
 
-1. Abre Mnet en el equipo que se va a controlar y pulsa **Permitir conexiones**. Aparecerán tu ID y tu contraseña.
+1. Abre Mconect en el equipo que se va a controlar y pulsa **Permitir conexiones**. Aparecerán tu ID y tu contraseña.
 2. Comparte esos dos datos con la otra persona.
 3. En el otro equipo escribe el ID (`192.168.1.20` o `192.168.1.20:52222`) y la contraseña, y pulsa **Conectar**.
 4. En el equipo controlado aparece una solicitud de consentimiento. Si la aceptas, se abre la ventana de sesión.
 5. Para terminar, pulsa **Finalizar** en cualquiera de los dos equipos.
 
-La primera vez, Windows Defender Firewall preguntará si permites Mnet en la red. Acepta al menos para redes privadas.
+La primera vez, Windows Defender Firewall preguntará si permites Mconect en la red. Acepta al menos para redes privadas.
 
 ## Seguridad
 
@@ -42,34 +42,48 @@ La primera vez, Windows Defender Firewall preguntará si permites Mnet en la red
 
 ## Compilar
 
-Requisitos: Windows y el SDK de .NET 8.
+Requisitos: Windows, el SDK de .NET 8 y, para el MSI, WiX 4 o superior (`dotnet tool install --global wix`).
 
 ```
-dotnet build Mnet.sln -c Release
+dotnet build Mconect.sln -c Release
 ```
 
 Para generar un único ejecutable autocontenido (no necesita .NET instalado):
 
 ```
-dotnet publish App/Mnet.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+dotnet publish App/Mconect.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
 ```
 
 ## Instalar
 
-`MnetSetup.exe` instala Mnet para todos los usuarios del equipo en `Archivos de programa\Mnet`, con accesos directos opcionales en el escritorio y el menú Inicio. Añade la entrada **Mnet** a Aplicaciones instaladas y su desinstalador (`Mnet.Uninstall.exe`).
+Hay tres formatos, con el mismo programa dentro:
 
-El instalador pide permisos de administrador porque escribe en Archivos de programa y en el registro. El ejecutable portable `Mnet.exe` sigue disponible si prefieres no instalar nada.
+| Formato | Archivo | Para qué |
+| --- | --- | --- |
+| Portable | `Mconect.exe` | Un único ejecutable autocontenido: se copia y se abre, sin instalar nada ni necesitar .NET. |
+| MSI | `Mconect-0.1.0-x64.msi` | Instalación estándar de Windows para todos los usuarios, con desinstalación desde Aplicaciones instaladas. |
+| Instalador propio | `MconectSetup.exe` | Instalador con el aspecto de la app, con desinstalador propio y opción de ejecutar como administrador. |
 
-Para generar el instalador (requiere el SDK de .NET y .NET Framework 4.8):
+El MSI y el instalador propio dejan Mconect en `Archivos de programa\Mconect`, con accesos directos opcionales en el escritorio y en el menú Inicio (carpeta **MSoft**). Ninguno está firmado, así que SmartScreen puede pedir confirmación la primera vez.
+
+Para generar las tres versiones (requiere el SDK de .NET, .NET Framework 4.8 y WiX):
 
 ```
 .\build-setup.ps1
 ```
 
+Solo el MSI, a partir de un `publish\Mconect.exe` ya publicado:
+
+```
+wix build installer.wxs -arch x64 -o publish\Mconect-0.1.0-x64.msi
+```
+
+Las versiones antiguas de Mnet 0.1 no son compatibles: el saludo del protocolo cambió de identificador, así que hay que actualizar los dos equipos.
+
 ## Pruebas
 
 ```
-dotnet run --project tests/Mnet.CoreTests -c Release
+dotnet run --project tests/Mconect.CoreTests -c Release
 ```
 
 Las pruebas cubren el cifrado de tramas, el saludo, la autenticación con contraseña correcta e incorrecta, la serialización de mensajes y una sesión completa por TCP local con pantalla, ratón, teclado y cierre.

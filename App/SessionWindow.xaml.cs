@@ -4,11 +4,11 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using Mnet.Core.Protocol;
-using Mnet.Core.Remoting;
-using MouseAction = Mnet.Core.Protocol.MouseAction;
+using Mconect.Core.Protocol;
+using Mconect.Core.Remoting;
+using MouseAction = Mconect.Core.Protocol.MouseAction;
 
-namespace Mnet.App;
+namespace Mconect.App;
 
 public partial class SessionWindow : Window
 {
@@ -26,7 +26,7 @@ public partial class SessionWindow : Window
     {
         InitializeComponent();
 
-        Title = $"Mnet · {target}";
+        Title = $"Mconect · {target}";
         RemoteNameText.Text = $"Conectado a {target}";
 
         _statsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };

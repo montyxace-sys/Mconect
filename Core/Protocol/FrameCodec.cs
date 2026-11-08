@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 
-namespace Mnet.Core.Protocol;
+namespace Mconect.Core.Protocol;
 
 /// <summary>Longitud prefijada y cifrado AES-256-GCM de los mensajes de sesión.</summary>
 public static class FrameCodec

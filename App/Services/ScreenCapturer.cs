@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using Mnet.Core.Remoting;
+using Mconect.Core.Remoting;
 using SkiaSharp;
 
-namespace Mnet.App.Services;
+namespace Mconect.App.Services;
 
 public sealed class ScreenCapturer : IRemoteScreen
 {

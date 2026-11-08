@@ -1,8 +1,8 @@
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using Mnet.Core.Protocol;
+using Mconect.Core.Protocol;
 
-namespace Mnet.Core.Remoting;
+namespace Mconect.Core.Remoting;
 
 /// <summary>Lado visitante: conecta, recibe la pantalla y envía ratón y teclado por el canal cifrado.</summary>
 public sealed class ClientConnection : IAsyncDisposable

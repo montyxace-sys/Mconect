@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Mnet.Core.Protocol;
+namespace Mconect.Core.Protocol;
 
 /// <summary>Interceptor de la contraseña de sesión mediante ECDH P-256 y HMAC-SHA256.</summary>
 public static class HandshakeProtocol
@@ -17,9 +17,9 @@ public static class HandshakeProtocol
     private const int NonceSize = 16;
     private const int SaltSize = 32;
     private const int MaxHandshakeSize = 4096;
-    private static readonly byte[] Magic = "MNET"u8.ToArray();
-    private static readonly byte[] SessionInfo = "Mnet v1 session"u8.ToArray();
-    private static readonly byte[] AuthInfo = "mnet-auth"u8.ToArray();
+    private static readonly byte[] Magic = "MCON"u8.ToArray();
+    private static readonly byte[] SessionInfo = "Mconect v1 session"u8.ToArray();
+    private static readonly byte[] AuthInfo = "mconect-auth"u8.ToArray();
 
     public static byte[] DeriveSessionKey(byte[] sharedSecret, byte[] salt)
     {
@@ -54,7 +54,7 @@ public static class HandshakeProtocol
         if (payload.Length < 6 || payload.Length > MaxHandshakeSize ||
             !payload.AsSpan(0, 4).SequenceEqual(Magic) || payload[4] != Version)
         {
-            throw new InvalidDataException("No es un saludo de Mnet válido.");
+            throw new InvalidDataException("No es un saludo de Mconect válido.");
         }
 
         if (payload[5] != expectedType)

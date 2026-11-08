@@ -12,27 +12,27 @@ $stageDir = Join-Path $root "obj\publish-stage"
 
 try {
     if (-not $SkipAppPublish) {
-        Write-Host "Publicando Mnet..." -ForegroundColor Cyan
+        Write-Host "Publicando Mconect..." -ForegroundColor Cyan
         if (Test-Path $stageDir) { Remove-Item $stageDir -Recurse -Force }
 
         # IncludeNativeLibrariesForSelfExtract mete las librerías nativas de WPF dentro
-        # de Mnet.exe: el ejecutable funciona aunque se copie solo.
-        dotnet publish Mnet.App/Mnet.App.csproj -c $Configuration -r win-x64 --self-contained true `
+        # de Mconect.exe: el ejecutable funciona aunque se copie solo.
+        dotnet publish App\Mconect.App.csproj -c $Configuration -r win-x64 --self-contained true `
             -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o $stageDir
-        if ($LASTEXITCODE -ne 0) { throw "No se pudo publicar Mnet." }
+        if ($LASTEXITCODE -ne 0) { throw "No se pudo publicar Mconect." }
 
         New-Item -ItemType Directory -Path $publishDir -Force | Out-Null
         Get-ChildItem $publishDir -File |
-            Where-Object { $_.Name -ne "MnetSetup.exe" } |
+            Where-Object { $_.Name -ne "MconectSetup.exe" } |
             Remove-Item -Force
         Get-ChildItem $stageDir -File |
             Where-Object { $_.Extension -ne ".pdb" } |
             ForEach-Object { Copy-Item $_.FullName (Join-Path $publishDir $_.Name) -Force }
     }
 
-    $appExe = Join-Path $publishDir "Mnet.exe"
+    $appExe = Join-Path $publishDir "Mconect.exe"
     if (-not (Test-Path $appExe)) {
-        throw "No se encontró publish\Mnet.exe. Compila Mnet antes de generar el instalador."
+        throw "No se encontró publish\Mconect.exe. Compila Mconect antes de generar el instalador."
     }
 
     Write-Host "Comprimiendo la aplicación..." -ForegroundColor Cyan
@@ -40,10 +40,10 @@ try {
     if (Test-Path $payloadSource) { Remove-Item $payloadSource -Recurse -Force }
     New-Item -ItemType Directory -Path $payloadSource | Out-Null
     Get-ChildItem $publishDir -File |
-        Where-Object { $_.Extension -ne ".pdb" -and $_.Name -ne "MnetSetup.exe" -and $_.Name -ne "MnetSetupPayload.zip" } |
+        Where-Object { $_.Extension -ne ".pdb" -and $_.Name -ne "MconectSetup.exe" -and $_.Name -ne "MconectSetupPayload.zip" } |
         ForEach-Object { Copy-Item $_.FullName (Join-Path $payloadSource $_.Name) }
 
-    $payloadZip = Join-Path $publishDir "MnetSetupPayload.zip"
+    $payloadZip = Join-Path $publishDir "MconectSetupPayload.zip"
     if (Test-Path $payloadZip) { Remove-Item $payloadZip -Force }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::CreateFromDirectory(
@@ -60,30 +60,42 @@ try {
         $payloadCheck.Dispose()
     }
     Remove-Item $payloadSource -Recurse -Force
-    if ($payloadNames -notcontains "Mnet.exe") {
-        throw "El payload no contiene Mnet.exe. Revisa publish\."
+    if ($payloadNames -notcontains "Mconect.exe") {
+        throw "El payload no contiene Mconect.exe. Revisa publish\."
     }
     Write-Host ("Payload: {0}" -f ($payloadNames -join ", ")) -ForegroundColor DarkGray
 
     Write-Host "Compilando el desinstalador..." -ForegroundColor Cyan
-    dotnet build "Installer\Mnet.Uninstall\Mnet.Uninstall.csproj" -c $Configuration
+    dotnet build "Installer\Mconect.Uninstall\Mconect.Uninstall.csproj" -c $Configuration
     if ($LASTEXITCODE -ne 0) { throw "No se pudo compilar el desinstalador." }
 
     Write-Host "Compilando el instalador..." -ForegroundColor Cyan
-    dotnet build "Installer\Mnet.Setup\Mnet.Setup.csproj" -c $Configuration
+    dotnet build "Installer\Mconect.Setup\Mconect.Setup.csproj" -c $Configuration
     if ($LASTEXITCODE -ne 0) { throw "No se pudo compilar el instalador." }
 
-    $setupExe = Join-Path $root "Installer\Mnet.Setup\bin\$Configuration\net48\Mnet.Setup.exe"
-    $target = Join-Path $publishDir "MnetSetup.exe"
+    $setupExe = Join-Path $root "Installer\Mconect.Setup\bin\$Configuration\net48\Mconect.Setup.exe"
+    $target = Join-Path $publishDir "MconectSetup.exe"
     Copy-Item $setupExe $target -Force
+
+    # ProductVersion llega como 0.1.0+<commit>; para el nombre del MSI sobra el sufijo.
+    $version = (Get-Item $appExe).VersionInfo.ProductVersion.Split('+')[0]
+    $msi = Join-Path $publishDir ("Mconect-{0}-x64.msi" -f $version)
+    Write-Host "Generando el instalador MSI..." -ForegroundColor Cyan
+    wix build installer.wxs -arch x64 -o $msi
+    if ($LASTEXITCODE -ne 0) {
+        throw "No se pudo generar el MSI. Instala WiX con: dotnet tool install --global wix"
+    }
+    Get-ChildItem $publishDir -Filter *.wixpdb | Remove-Item -Force
 
     Remove-Item $payloadZip -Force
 
     $appMb = [math]::Round((Get-Item $appExe).Length / 1MB, 1)
     $setupMb = [math]::Round((Get-Item $target).Length / 1MB, 1)
+    $msiMb = [math]::Round((Get-Item $msi).Length / 1MB, 1)
     Write-Host ""
-    Write-Host ("Mnet.exe       {0} MB" -f $appMb) -ForegroundColor Green
-    Write-Host ("MnetSetup.exe  {0} MB" -f $setupMb) -ForegroundColor Green
+    Write-Host ("Mconect.exe            {0} MB" -f $appMb) -ForegroundColor Green
+    Write-Host ("MconectSetup.exe       {0} MB" -f $setupMb) -ForegroundColor Green
+    Write-Host ("Mconect-{0}-x64.msi  {1} MB" -f $version, $msiMb) -ForegroundColor Green
     Write-Host "Publicados en publish\" -ForegroundColor Green
 }
 finally {

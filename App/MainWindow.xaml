@@ -1,7 +1,7 @@
-<Window x:Class="Mnet.App.MainWindow"
+<Window x:Class="Mconect.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Mnet"
+        Title="Mconect"
         Width="1010"
         Height="665"
         MinWidth="900"
@@ -24,7 +24,7 @@
                     <Image Source="Assets/icon.png" Width="42" Height="42"
                            RenderOptions.BitmapScalingMode="HighQuality" />
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Mnet" FontFamily="Segoe UI Semibold" FontSize="22" />
+                        <TextBlock Text="Mconect" FontFamily="Segoe UI Semibold" FontSize="22" />
                         <TextBlock Text="Escritorio remoto directo" Style="{StaticResource Caption}"
                                    Margin="0,1,0,0" />
                     </StackPanel>
@@ -164,7 +164,7 @@
             <DockPanel>
                 <TextBlock Text="Cifrado AES-256-GCM con claves efímeras · ECDH P-256"
                            Style="{StaticResource Caption}" FontSize="11.5" />
-                <TextBlock x:Name="VersionText" Text="Mnet 0.1.0" Style="{StaticResource Caption}"
+                <TextBlock x:Name="VersionText" Text="Mconect 0.1.0" Style="{StaticResource Caption}"
                            FontSize="11.5" HorizontalAlignment="Right" />
             </DockPanel>
         </Border>

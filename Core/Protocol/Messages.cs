@@ -1,6 +1,6 @@
 using System.Buffers.Binary;
 
-namespace Mnet.Core.Protocol;
+namespace Mconect.Core.Protocol;
 
 public enum MessageType : byte
 {

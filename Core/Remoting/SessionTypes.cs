@@ -1,6 +1,6 @@
-using Mnet.Core.Protocol;
+using Mconect.Core.Protocol;
 
-namespace Mnet.Core.Remoting;
+namespace Mconect.Core.Remoting;
 
 /// <summary>Fotograma listo para enviar: JPEG comprimido y geometría de origen.</summary>
 public sealed record ScreenFrame(

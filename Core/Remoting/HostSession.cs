@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
-using Mnet.Core.Protocol;
+using Mconect.Core.Protocol;
 
-namespace Mnet.Core.Remoting;
+namespace Mconect.Core.Remoting;
 
 /// <summary>Lado anfitrión de una sesión: saludo, consentimiento, envío de pantalla y entrada remota.</summary>
 public static class HostSession

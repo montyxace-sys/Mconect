@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace Mnet.App;
+namespace Mconect.App;
 
 public partial class App : Application
 {

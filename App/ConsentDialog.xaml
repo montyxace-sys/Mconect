@@ -1,4 +1,4 @@
-<Window x:Class="Mnet.App.ConsentDialog"
+<Window x:Class="Mconect.App.ConsentDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Solicitud de conexión"

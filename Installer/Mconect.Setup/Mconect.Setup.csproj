@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <RootNamespace>Mconect.Setup</RootNamespace>
+    <AssemblyName>Mconect.Setup</AssemblyName>
+    <Version>0.1.0</Version>
+    <Product>Mconect</Product>
+    <Company>MSoft</Company>
+    <AssemblyTitle>Instalador de Mconect</AssemblyTitle>
+    <Description>Instalador de Mconect</Description>
+    <ApplicationManifest Condition="'$(Configuration)' == 'Debug'">app.dev.manifest</ApplicationManifest>
+    <ApplicationManifest Condition="'$(Configuration)' != 'Debug'">app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\App\Assets\icon.ico</ApplicationIcon>
+    <PayloadZip Condition="'$(PayloadZip)' == ''">$(MSBuildProjectDirectory)\..\..\publish\MconectSetupPayload.zip</PayloadZip>
+    <UninstallerExe Condition="'$(UninstallerExe)' == ''">$(MSBuildProjectDirectory)\..\Mconect.Uninstall\bin\$(Configuration)\net48\Mconect.Uninstall.exe</UninstallerExe>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- El núcleo se compila dentro del instalador para que MconectSetup.exe sea un único archivo. -->
+    <Compile Include="..\Mconect.Installer.Core\*.cs" Link="Core\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="..\Shared\UiTheme.xaml" Link="UiTheme.xaml" />
+    <Resource Include="..\..\App\Assets\icon.png" Link="Assets\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(PayloadZip)')">
+    <EmbeddedResource Include="$(PayloadZip)" LogicalName="Mconect.payload.zip" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(UninstallerExe)')">
+    <EmbeddedResource Include="$(UninstallerExe)" LogicalName="Mconect.uninstall.exe" />
+  </ItemGroup>
+
+  <Target Name="ValidateSetupPayload" BeforeTargets="CoreCompile">
+    <Warning Condition="!Exists('$(PayloadZip)')"
+             Text="Falta $(PayloadZip). Ejecuta build-setup.ps1 para generar el instalador completo." />
+    <Warning Condition="!Exists('$(UninstallerExe)')"
+             Text="Falta $(UninstallerExe). Compila antes el proyecto Mconect.Uninstall." />
+  </Target>
+
+</Project>

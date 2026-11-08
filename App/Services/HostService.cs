@@ -1,9 +1,9 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using Mnet.Core.Remoting;
+using Mconect.Core.Remoting;
 
-namespace Mnet.App.Services;
+namespace Mconect.App.Services;
 
 public sealed class HostService : IDisposable
 {

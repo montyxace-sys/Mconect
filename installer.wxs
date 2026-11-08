@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <Package Name="Mconect"
+           Manufacturer="MSoft"
+           Version="0.1.0"
+           UpgradeCode="8A364912-9D6E-41C9-825D-EE03DC4EBD96"
+           Scope="perMachine"
+           Compressed="yes"
+           Language="3082">
+
+    <MajorUpgrade DowngradeErrorMessage="Ya hay una versión más reciente de Mconect instalada." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="ARPHELPLINK" Value="https://msoft.com.es" />
+    <Property Id="ARPURLINFOABOUT" Value="https://msoft.com.es" />
+    <Property Id="ARPCONTACT" Value="MSoft" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <Property Id="ARPNOREPAIR" Value="1" />
+
+    <Icon Id="AppIcon" SourceFile="App\Assets\icon.ico" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Mconect" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="MSoftMenuFolder" Name="MSoft" />
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="Mconect" Level="1">
+      <ComponentRef Id="MainExecutable" />
+    </Feature>
+
+  </Package>
+
+  <Fragment>
+    <Component Id="MainExecutable" Directory="INSTALLFOLDER" Guid="*">
+      <File Id="MconectExe"
+            Source="publish\Mconect.exe"
+            KeyPath="yes" />
+
+      <Shortcut Id="StartMenuShortcut"
+                Directory="MSoftMenuFolder"
+                Name="Mconect"
+                Description="Escritorio remoto directo y cifrado"
+                Target="[INSTALLFOLDER]Mconect.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="AppIcon" />
+
+      <Shortcut Id="DesktopShortcut"
+                Directory="DesktopFolder"
+                Name="Mconect"
+                Description="Escritorio remoto directo y cifrado"
+                Target="[INSTALLFOLDER]Mconect.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="AppIcon" />
+
+      <RemoveFolder Id="RemoveMSoftMenuFolder" Directory="MSoftMenuFolder" On="uninstall" />
+    </Component>
+  </Fragment>
+
+</Wix>

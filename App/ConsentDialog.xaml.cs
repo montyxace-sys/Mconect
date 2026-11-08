@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 
-namespace Mnet.App;
+namespace Mconect.App;
 
 public partial class ConsentDialog : Window
 {

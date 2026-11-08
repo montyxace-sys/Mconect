@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using Mnet.Core.Protocol;
-using Mnet.Core.Remoting;
+using Mconect.Core.Protocol;
+using Mconect.Core.Remoting;
 
-namespace Mnet.App.Services;
+namespace Mconect.App.Services;
 
 public sealed class InputInjector : IInputSink
 {

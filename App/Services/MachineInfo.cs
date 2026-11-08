@@ -3,7 +3,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 
-namespace Mnet.App.Services;
+namespace Mconect.App.Services;
 
 public static class MachineInfo
 {
