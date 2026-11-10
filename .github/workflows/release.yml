@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,20 +14,40 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Build and publish portable
+
+      - name: Compilar y probar
         shell: pwsh
         run: |
-          dotnet publish App/Mconect.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
-      - name: Locate signtool
-        id: signtool
+          dotnet build Mconect.sln -c Release --warnaserror
+          dotnet run --project tests/Mconect.CoreTests/Mconect.CoreTests.csproj -c Release --no-build
+
+      - name: Publicar el ejecutable portable
+        shell: pwsh
         run: |
-          $st = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-          if (-not $st) { Write-Host "signtool no encontrado"; exit 1 }
-          echo "path=$st" >> $env:GITHUB_OUTPUT
-      - name: Sign binaries (if cert provided)
+          dotnet publish App/Mconect.App.csproj -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+
+      - name: Localizar signtool (opcional)
+        id: signtool
+        shell: pwsh
+        run: |
+          # Que falte signtool no puede romper un release: solo impide firmar.
+          $st = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty FullName
+          if (-not $st) {
+            Write-Host "::warning::signtool no encontrado: el release se publicara sin firma."
+            "path=" >> $env:GITHUB_OUTPUT
+          } else {
+            "path=$st" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Firmar los binarios (si hay certificado)
+        if: ${{ steps.signtool.outputs.path != '' }}
+        shell: pwsh
         env:
           CODE_SIGN_CERT: ${{ secrets.CODE_SIGN_CERT }}
           CODE_SIGN_PASSWORD: ${{ secrets.CODE_SIGN_PASSWORD }}
@@ -35,20 +56,41 @@ jobs:
             Write-Host "No se proporciono certificado de firma. Se omite la firma."
             exit 0
           }
-          $certPath = "$env:RUNNER_TEMP\codesign.pfx"
+
+          $certPath = Join-Path $env:RUNNER_TEMP "codesign.pfx"
           [System.IO.File]::WriteAllBytes($certPath, [System.Convert]::FromBase64String($env:CODE_SIGN_CERT))
-          $st = "${{ steps.signtool.outputs.path }}"
-          Get-ChildItem .\publish\*.exe -ErrorAction SilentlyContinue | ForEach-Object { & $st sign /fd sha256 /tr http://timestamp.digicert.com /td sha256 /f $certPath /p $env:CODE_SIGN_PASSWORD $_.FullName }
-          Get-ChildItem .\publish\*.msi -ErrorAction SilentlyContinue | ForEach-Object { & $st sign /fd sha256 /tr http://timestamp.digicert.com /td sha256 /f $certPath /p $env:CODE_SIGN_PASSWORD $_.FullName }
+
+          $signtool = "${{ steps.signtool.outputs.path }}"
+          $files = Get-ChildItem .\publish\*.exe, .\publish\*.msi -ErrorAction SilentlyContinue
+          if (-not $files) {
+            Write-Host "No hay binarios que firmar."
+            exit 0
+          }
+
+          foreach ($file in $files) {
+            & $signtool sign /fd sha256 /tr http://timestamp.digicert.com /td sha256 /f $certPath /p $env:CODE_SIGN_PASSWORD $file.FullName
+            if ($LASTEXITCODE -ne 0) { throw "La firma de $($file.Name) fallo con codigo $LASTEXITCODE." }
+          }
+
           Remove-Item $certPath -Force
 
-      - name: Create checksums
+      - name: Crear los checksums
         shell: pwsh
         run: |
-          Get-ChildItem .\publish\*.exe | ForEach-Object { (Get-FileHash $_ -Algorithm SHA256).Hash + "  " + $_.Name } | Out-File -Encoding ASCII publish/SHA256SUMS.txt
-      - name: Upload release assets
+          $files = Get-ChildItem .\publish\*.exe, .\publish\*.msi -ErrorAction SilentlyContinue
+          if (-not $files) {
+            Write-Host "No hay binarios para calcular checksums."
+            exit 0
+          }
+          $files | ForEach-Object { (Get-FileHash $_.FullName -Algorithm SHA256).Hash + "  " + $_.Name } |
+            Out-File -Encoding ASCII publish/SHA256SUMS.txt
+          Get-Content publish/SHA256SUMS.txt
+
+      - name: Publicar el release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             publish/*.exe
+            publish/*.msi
             publish/SHA256SUMS.txt
+          fail_on_unmatched_files: false
