@@ -152,21 +152,46 @@
                     <StackPanel Grid.Row="2">
                         <Button x:Name="HostButton" Content="Permitir conexiones"
                                 Style="{StaticResource SecondaryButton}" Click="HostButton_Click" />
+                        <Button x:Name="CopyInviteButton" Content="Copiar invitación" Height="34"
+                                Margin="0,8,0,0" Style="{StaticResource GhostButton}"
+                                ToolTip="Copia el ID, el puerto y la contraseña en un solo texto"
+                                Click="CopyInvite_Click" />
                         <TextBlock x:Name="HostStatus" Text="El acceso remoto está desactivado."
-                                   Style="{StaticResource Caption}" Margin="0,10,0,0"
+                                   Style="{StaticResource Caption}" Margin="0,8,0,0"
                                    HorizontalAlignment="Center" TextAlignment="Center" />
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
 
-        <Border Grid.Row="2" Padding="28,0,28,16">
-            <DockPanel>
-                <TextBlock Text="Cifrado AES-256-GCM con claves efímeras · ECDH P-256"
-                           Style="{StaticResource Caption}" FontSize="11.5" />
-                <TextBlock x:Name="VersionText" Text="Mconect 0.1.0" Style="{StaticResource Caption}"
-                           FontSize="11.5" HorizontalAlignment="Right" />
-            </DockPanel>
+        <Border Grid.Row="2" Padding="28,0,28,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <DockPanel>
+                    <TextBlock Text="Cifrado AES-256-GCM con claves efímeras · ECDH P-256"
+                               Style="{StaticResource Caption}" FontSize="11.5" />
+                    <TextBlock x:Name="VersionText" Text="Mconect 1.1.0" Style="{StaticResource Caption}"
+                               FontSize="11.5" HorizontalAlignment="Right" />
+                </DockPanel>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="¿Te ayuda Mconect? Apoya el proyecto:" Style="{StaticResource Caption}"
+                               FontSize="11" VerticalAlignment="Center" />
+                    <TextBlock VerticalAlignment="Center" Margin="6,0,0,0">
+                        <Hyperlink NavigateUri="https://paypal.me/MsoftGenuino" RequestNavigate="DonateLink_RequestNavigate">
+                            <TextBlock Text="PayPal" Foreground="{StaticResource DonateHoverBrush}" />
+                        </Hyperlink>
+                    </TextBlock>
+                    <TextBlock Text=" · " Style="{StaticResource Caption}" FontSize="11" VerticalAlignment="Center" />
+                    <TextBlock VerticalAlignment="Center">
+                        <Hyperlink NavigateUri="https://liberapay.com/Msoft/donate" RequestNavigate="DonateLink_RequestNavigate">
+                            <TextBlock Text="Liberapay" Foreground="{StaticResource DonateHoverBrush}" />
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>

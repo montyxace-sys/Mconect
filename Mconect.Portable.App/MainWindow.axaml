@@ -1,0 +1,10 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Mconect.Portable.App"
+        x:Class="Mconect.Portable.App.MainWindow"
+        Title="Mconect · visor portable"
+        Width="980" Height="720"
+        MinWidth="640" MinHeight="480"
+        WindowStartupLocation="CenterScreen">
+  <local:MainView />
+</Window>

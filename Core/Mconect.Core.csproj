@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Mconect.Core</RootNamespace>
     <AssemblyName>Mconect.Core</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
 </Project>

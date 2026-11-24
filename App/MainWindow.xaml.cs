@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Mconect.App.Services;
 using Mconect.Core.Remoting;
 
@@ -30,7 +32,20 @@ public partial class MainWindow : Window
 
         IdBox.KeyDown += (_, e) => SubmitOnEnter(e);
         SessionPasswordBox.KeyDown += (_, e) => SubmitOnEnter(e);
-        Loaded += (_, _) => IdBox.Focus();
+        Loaded += (_, _) =>
+        {
+            IdBox.Focus();
+            if (DonationPrefs.ShouldShow())
+            {
+                var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
+                timer.Tick += (_, _) =>
+                {
+                    timer.Stop();
+                    new DonationDialog { Owner = this }.ShowDialog();
+                };
+                timer.Start();
+            }
+        };
     }
 
     private void SubmitOnEnter(KeyEventArgs e)
@@ -61,11 +76,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!TryParseTarget(target, out var host, out var port))
+        if (!ConnectionTarget.TryParse(target, out var connectionTarget))
         {
             ShowConnectError("El ID debe ser una IP, por ejemplo 192.168.1.20 o 192.168.1.20:52222.");
             return;
         }
+
+        var host = connectionTarget.Host;
+        var port = connectionTarget.Port;
 
         ConnectButton.IsEnabled = false;
         ConnectButton.Content = "Conectando…";
@@ -108,26 +126,6 @@ public partial class MainWindow : Window
             ConnectButton.Content = "Conectar";
             HeaderStatus.Text = _waiting ? "Esperando conexiones" : "Listo";
         }
-    }
-
-    private static bool TryParseTarget(string text, out string host, out int port)
-    {
-        host = text;
-        port = DefaultPort;
-
-        var colon = text.LastIndexOf(':');
-        if (colon > 0)
-        {
-            if (!int.TryParse(text[(colon + 1)..], out var parsed) || parsed < 1 || parsed > 65535)
-            {
-                return false;
-            }
-
-            host = text[..colon];
-            port = parsed;
-        }
-
-        return host.Length > 0 && !host.Contains(' ') && !host.Contains(':');
     }
 
     private void ShowConnectError(string message)
@@ -199,6 +197,35 @@ public partial class MainWindow : Window
         {
             HostStatus.Text = "No se pudo copiar el ID; el portapapeles está ocupado.";
         }
+    }
+
+    private void CopyInvite_Click(object sender, RoutedEventArgs e)
+    {
+        var invite = ConnectionInvite.Create(MachineInfo.LocalAddress, DefaultPort, _password);
+        try
+        {
+            Clipboard.SetText(invite.ToShareText());
+            HostStatus.Text = "Invitación copiada: comparte el ID, el puerto y la contraseña.";
+        }
+        catch (ExternalException)
+        {
+            HostStatus.Text = "No se pudo copiar la invitación; el portapapeles está ocupado.";
+        }
+    }
+
+    private void DonateLink_RequestNavigate(object sender,
+        System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            Clipboard.SetText(e.Uri.AbsoluteUri);
+        }
+
+        e.Handled = true;
     }
 
     private bool RequestConsent(string address)

@@ -31,6 +31,9 @@ internal static class Program
         HostClientEndToEnd();
         RejectedByHost();
         WrongMessageTypesRejected();
+        TargetParsing();
+        InviteRoundTrip();
+        InviteParsing();
 
         Console.WriteLine();
         Console.WriteLine($"{_passed} correctas, {_failed} fallidas.");
@@ -386,6 +389,44 @@ internal static class Program
             listener.Stop();
             Expect(hostTask.Wait(5000), "El anfitrión no terminó tras rechazar.");
         }
+    });
+
+    private static void TargetParsing() => Check("ID: IP, puerto y esquema", () =>
+    {
+        Expect(ConnectionTarget.TryParse("192.168.1.20", out var a) &&
+               a == new ConnectionTarget("192.168.1.20", 52222), "IP sin puerto incorrecta.");
+        Expect(ConnectionTarget.TryParse("192.168.1.20:6000", out var b) &&
+               b.Port == 6000, "Puerto explícito incorrecto.");
+        Expect(ConnectionTarget.TryParse("mconect://192.168.1.20:6000", out var c) &&
+               c.Host == "192.168.1.20" && c.Port == 6000, "Esquema incorrecto.");
+        Expect(ConnectionTarget.TryParse("[::1]:52222", out var d) &&
+               d.Host == "::1", "IPv6 incorrecta.");
+        Expect(d.ToString() == "[::1]:52222", "IPv6 mal serializada.");
+        Expect(!ConnectionTarget.TryParse("192.168.1.20:0", out _) &&
+               !ConnectionTarget.TryParse("192.168.1.20:70000", out _) &&
+               !ConnectionTarget.TryParse("equipo con espacio", out _) &&
+               !ConnectionTarget.TryParse("192.168.1.20:", out _), "Se aceptó un ID inválido.");
+    });
+
+    private static void InviteRoundTrip() => Check("Invitación: generar y leer", () =>
+    {
+        var invite = ConnectionInvite.Create("192.168.1.20", 6000, "ab&c 34");
+        var text = invite.ToShareText();
+        Expect(text == "mconect://192.168.1.20:6000?pwd=ab%26c%2034", $"Texto inesperado: {text}");
+        Expect(ConnectionInvite.TryParse(text, out var parsed), "No se pudo leer la invitación.");
+        Expect(parsed == invite, "La invitación leída es distinta.");
+    });
+
+    private static void InviteParsing() => Check("Invitación: sin contraseña y rechazos", () =>
+    {
+        Expect(ConnectionInvite.TryParse("192.168.1.20:6000", out var plain) &&
+               plain.Target.Port == 6000 && plain.Password.Length == 0, "ID simple incorrecto.");
+        Expect(ConnectionInvite.TryParse("mconect://[::1]?pwd=clave", out var ipv6) &&
+               ipv6.Target.Host == "::1" && ipv6.Password == "clave", "IPv6 con contraseña incorrecta.");
+        Expect(!ConnectionInvite.TryParse("mconect://192.168.1.20?other=x", out var noPwd) ||
+               noPwd.Password.Length == 0, "Se inventó una contraseña.");
+        Expect(!ConnectionInvite.TryParse("mconect://", out _) &&
+               !ConnectionInvite.TryParse("192.168.1.20:abc?pwd=x", out _), "Se aceptó una invitación inválida.");
     });
 
     private static T Capture<T>(Action action) where T : Exception

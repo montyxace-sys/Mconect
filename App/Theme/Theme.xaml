@@ -15,6 +15,9 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="#17A34A" />
     <SolidColorBrush x:Key="DangerBrush" Color="#E5484D" />
     <SolidColorBrush x:Key="DangerHoverBrush" Color="#C93A3F" />
+    <SolidColorBrush x:Key="DonateBrush" Color="#F6C549" />
+    <SolidColorBrush x:Key="DonateHoverBrush" Color="#E6B333" />
+    <SolidColorBrush x:Key="DonateWashBrush" Color="#FFF8E5" />
 
     <Style TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Segoe UI" />
